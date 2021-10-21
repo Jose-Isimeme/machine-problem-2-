@@ -221,7 +221,7 @@ int main(int argc, char *argv[]){
     }
 }
 
-void PrintCurrentClients(int client_cnt, int max_fd, int i, char *names, int sock_fd, struct Messages *Mess_to, int size){
+void PrintCurrentClients(int client_cnt, int max_fd, int i, char names[500], int sock_fd, struct Messages *Mess_to, int size){
     char who_is_online[500];
     int n;
     if(client_cnt==1){
@@ -241,7 +241,7 @@ void PrintCurrentClients(int client_cnt, int max_fd, int i, char *names, int soc
             if(n!=sock_fd){
                 if(client_cnt != 1){
                     //update who_is_online with users that are online
-                    strcat(who_is_online, &names[n]);
+                    strcat(who_is_online, names[n]);
                     
                     //add a space to separate names
                     strcat(who_is_online, "\n");
