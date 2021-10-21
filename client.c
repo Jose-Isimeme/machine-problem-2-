@@ -9,20 +9,22 @@
 #include <unistd.h>
 
 /*Structs based of slides from recitation*/
-struct Attr{
-    unsigned int AttrType;
-    unsigned int AttrLength;
-    char        Payload[512];
-};
 
 struct Messages{
-    unsigned int MessageVrsn;
-    unsigned int MessageType;
-    unsigned int MessageLength;
-    struct Attr Attr;
+    unsigned int MessageVrsn; //9 bit version field, protocol version is 3
+    unsigned int MessageType; //7 bit type field, indicates SBCP message type
+    unsigned int MessageLength; //2 bit length field, indicates SBCP message length
+    struct Attr Payload; //contains 0 or more SBCP attributes
+};
+
+struct Attr{
+    unsigned int AttrType; //2 bytes type field, indicates SBCP attribute type
+    unsigned int AttrLength; //2 byte length field, indicates SBCP attribute length
+    char        Payload[512]; //has the attribute payload
 };
 
 int main(int argc, char *argv[]){
+
 
     struct Messages *Mess_to;
     struct Messages *Mess_from;
@@ -65,7 +67,7 @@ int main(int argc, char *argv[]){
 
     Mess_to = malloc(size);
     setInitialMessage(Mess_to);
-    strcpy(Mess_to->Attr.Payload, argv[1]);
+    strcpy(Mess_to->Payload.Payload, argv[1]);
     //print message
     printf("From the client: joining chat\n");
 
@@ -90,7 +92,7 @@ int main(int argc, char *argv[]){
                     len_of_ip = strlen(message)-1;
                     
                     Mess_to = malloc(size);
-                    strcpy(Mess_to->Attr.Payload, message);
+                    strcpy(Mess_to->Payload.Payload, message);
                     setMessage(Mess_to);
                     if(write(sock_fd, Mess_to, size)==-1){
                         perror("write error");
@@ -101,11 +103,11 @@ int main(int argc, char *argv[]){
                     Mess_from = malloc(size);
                     readingbytes = read(sock_fd, Mess_from, sizeof(struct Messages));
                     //print statement
-                    printf("%s", Mess_from->Attr.Payload);
+                    printf("%s", Mess_from->Payload.Payload);
 
                     free(Mess_from);
                     if(Mess_from->MessageType==5){
-                        if(Mess_from->Attr.AttrType==1){
+                        if(Mess_from->Payload.AttrType==1){
                             exit(7);
                         }
                     }
@@ -121,16 +123,16 @@ int main(int argc, char *argv[]){
 }
 
 void setInitialMessage(struct Messages *mess){
-    mess->Attr.AttrType=2;
-    mess->Attr.AttrLength=20;
+    mess->Payload.AttrType=2;
+    mess->Payload.AttrLength=20;
     mess->MessageVrsn=3;
     mess->MessageType=2;
     mess->MessageLength=24;
 }
 
 void setMessage(struct Messages *mess){
-    mess->Attr.AttrType=4;
-    mess->Attr.AttrLength=524;
+    mess->Payload.AttrType=4;
+    mess->Payload.AttrLength=524;
     mess->MessageVrsn=3;
     mess->MessageType=4;
     mess->MessageLength=520;

@@ -9,17 +9,17 @@
 #include <unistd.h>
 
 /*Structs based of slides from recitation*/
-struct Attr{
-    unsigned int AttrType;
-    unsigned int AttrLength;
-    char         Payload[512];
+struct Messages{
+    unsigned int MessageVrsn; //9 bit version field, protocol version is 3
+    unsigned int MessageType; //7 bit type field, indicates SBCP message type
+    unsigned int MessageLength; //2 bit length field, indicates SBCP message length
+    struct Attr Payload; //contains 0 or more SBCP attributes
 };
 
-struct Messages{
-    unsigned int MessageVrsn;
-    unsigned int MessageType;
-    unsigned int MessageLength;
-    struct Attr Attr;
+struct Attr{
+    unsigned int AttrType; //2 bytes type field, indicates SBCP attribute type
+    unsigned int AttrLength; //2 byte length field, indicates SBCP attribute length
+    char        Payload[512]; //has the attribute payload
 };
 
 
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]){
 
     //arrays to keep track of usernames and who is active on the chat
     char names[100][50]={0};
-    char who_is_online[500]={0};
+    //char who_is_online[500]={0};
     char who_has_left[500]={0};
 
     FD_ZERO(&master_fd);
@@ -130,76 +130,59 @@ int main(int argc, char *argv[]){
                     //print message
                     if(return_val>0){
                         
+                        //first case: message type is 2
+                        //cleint wants to join the chat session
                         if(Mess_from->MessageType ==2){
-                            if(Mess_from->Attr.AttrType == 2){
-                                if(client_cnt <= max_num_clients -1){
-                                    int f = 1;
-                                    for(m = 4; m <= max_fd; m++){
-                                        if(strcmp(Mess_from->Attr.Payload, names[m])==0){
-                                            f=0;
-                                            Mess_to = malloc(size);
-                                            strcpy(Mess_to->Attr.Payload, "This name is already being used. Choose a different one");
-                                            write(i, Mess_to, size);
-                                            client_cnt--;
-                                            close(i);
-                                            FD_CLR(i, &master_fd);
-                                            break;
-                                        }
-                                    }
-                                    if(f==1){
-                                        //print message
-                                        sprintf(names[i], "%s", Mess_from->Attr.Payload);
+                            printf("Client trying to join chat session\n");
 
-                                        Mess_to = malloc(size);
-                                        //Mess_to->AttrType=7;
-                                        if(client_cnt==1){
-                                            //no one else is online so update the array
-                                            strcpy(who_is_online, "Howdy! No one else is online\n");
-                                        }else{
-                                            //others are online so update array with different welcome message
-                                            strcpy(who_is_online, "Howdy! There are others online. Here is who is on: \n");
-                                        }
-                                        for(n = 4; n<max_fd; n++){
-                                            if(n!=i){
-                                                if(n!=sock_fd){
-                                                    if(client_cnt != 1){
-                                                        //update who_is_online with users that are online
-                                                        strcat(who_is_online, names[n]);
-                                                        
-                                                        //add a space to separate names
-                                                        strcat(who_is_online, "\n");
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        //add who_is_online to the payload of the message struct
-                                        strcpy(Mess_to->Attr.Payload, who_is_online);
-                                        printf("Message sent to the client was: %s", Mess_to->Attr.Payload);
-                                        write(i, Mess_to, size);
-                                    }
-                                }else{
+                            //attribute type 2 indicates nickname 
+                            if(Mess_from->Payload.AttrType == 2){
+                                //check that max number has not been reached
+                                if(client_cnt > max_num_clients-1){
                                     Mess_to = malloc(size);
-                                    strcpy(Mess_to->Attr.Payload, "maximum number reached\n");
+                                    strcpy(Mess_to->Payload.Payload, "maximum number reached, so you cannot join\n");
                                     write(i, Mess_to, size);
-
                                     client_cnt--;
                                     close(i);
                                     FD_CLR(i, &master_fd);
-                                    
+                                }else{
+                                    int name_not_being_used = CheckNameAvailability(max_fd, Mess_from, Mess_to, names, size); 
+                                    if(name_not_being_used != 1){
+                                        write(i, Mess_to, size);
+                                        client_cnt--;
+                                        close(i);
+                                        FD_CLR(i, &master_fd);
+                                        return 0;
+                                    }else{
+                                        //print message
+                                        sprintf(names[i], "%s", Mess_from->Payload.Payload);
+
+                                        Mess_to = malloc(size);
+                                        Mess_to->Payload.AttrType=7;
+                                        char who_is_online[500] = PrintCurrentClients(client_cnt, max_fd, i, names, sock_fd);
+                                        
+                                        //add who_is_online to the payload of the message struct
+                                        strcpy(Mess_to->Payload.Payload, who_is_online);
+                                        printf("Message sent to the client was: %s", Mess_to->Payload.Payload);
+                                        write(i, Mess_to, size);
+                                    }
                                 }
                             }
                             
                         }
+
+                        //type 4 indicates client sending something to server. A chat text is being sent
                         if(Mess_from->MessageType==4){
-                            if(Mess_from->Attr.AttrType==4){
+                            //attribute type 4 indicates message itself
+                            if(Mess_from->Payload.AttrType==4){
                                 //print message
-                                sprintf(Mess_from, "%s - %s", names[i], Mess_from->Attr.Payload);
+                                sprintf(Mess_from, "%s - %s", names[i], Mess_from->Payload.Payload);
                                 for(c=0; c<max_fd; c++){
                                     if(FD_ISSET(c, &master_fd)){
                                         if(c!=i){
                                             if(c!=sock_fd){
                                                 Mess_to = malloc(size);
-                                                strcpy(Mess_to->Attr.Payload, Mess_from);
+                                                strcpy(Mess_to->Payload.Payload, Mess_from);
                                                 write(c, Mess_to, size);
                                             }
                                         }
@@ -220,7 +203,7 @@ int main(int argc, char *argv[]){
                                     if(l!=i){
                                         if(l!=sock_fd){
                                             Mess_to = malloc(size);
-                                            strcpy(Mess_to->Attr.Payload, who_has_left);
+                                            strcpy(Mess_to->Payload.Payload, who_has_left);
 
                                             if(write(l, Mess_to, size)==-1){
                                                 perror("write error");
@@ -241,4 +224,42 @@ int main(int argc, char *argv[]){
         }
         
     }
+}
+
+char PrintCurrentClientList(int client_cnt, int max_fd, int i, char *names, int sock_fd){
+    char who_is_online[500];
+    int n;
+    if(client_cnt==1){
+        //no one else is online so update the array
+        strcpy(who_is_online, "Howdy! No one else is online\n");
+    }else{
+        //others are online so update array with different welcome message
+        strcpy(who_is_online, "Howdy! There are others online. Here is who is on: \n");
+    }
+    for(n = 4; n<max_fd; n++){
+        if(n!=i){
+            if(n!=sock_fd){
+                if(client_cnt != 1){
+                    //update who_is_online with users that are online
+                    strcat(who_is_online, names[n]);
+                    
+                    //add a space to separate names
+                    strcat(who_is_online, "\n");
+                }
+            }
+        }
+    }
+
+    return who_is_online;
+}
+
+int CheckNameAvailability(int max_fd, struct Messages *Mess_from, struct Messages *Mess_to, char *names, int size){
+    int m;
+    for(m = 4; m <= max_fd; m++){
+        if(strcmp(Mess_from->Payload.Payload, names[m])==0){
+            Mess_to = malloc(size);
+            strcpy(Mess_to->Payload.Payload, "This name is already being used. Choose a different one");
+        }
+    }
+    return 1;
 }
