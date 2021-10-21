@@ -14,8 +14,4 @@ This will start the chat service and you can begin to chat between different cli
 
 *Note: For the ip address, it is easiest to use hostname -I to find the local Ip Address of your device and use that for both the client and the server. 
 
-
-## How to run the tests
-
-
 ## How our team created this code:
