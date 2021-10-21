@@ -246,7 +246,7 @@ char PrintCurrentClientList(int client_cnt, int max_fd, int i, char *names, int 
             if(n!=sock_fd){
                 if(client_cnt != 1){
                     //update who_is_online with users that are online
-                    strcat(who_is_online, names[n]);
+                    strcat(who_is_online, &names[n]);
                     
                     //add a space to separate names
                     strcat(who_is_online, "\n");
