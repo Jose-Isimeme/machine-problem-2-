@@ -108,7 +108,7 @@ int main(int argc, char *argv[]){
                         printf("From server: new connection\n");
                         //check for error
                         if(new_com == -1){
-                            perror("");
+                            perror("cannot accept new connection");
                         }else{
                             FD_SET(new_com, &master_fd);
                             //reset max
@@ -116,7 +116,6 @@ int main(int argc, char *argv[]){
                                 max_fd = new_com;
                             }
                             client_cnt++;
-                             printf("print server\n");
                         }
                         
                     }
@@ -137,8 +136,9 @@ int main(int argc, char *argv[]){
 
                             //attribute type 2 indicates nickname 
                             if(Mess_from->Payload.AttrType == 2){
+
                                 //check that max number has not been reached
-                                if(client_cnt > max_num_clients-1){
+                                if(client_cnt > max_num_clients){
                                     Mess_to = malloc(size);
                                     strcpy(Mess_to->Payload.Payload, "maximum number reached, so you cannot join\n");
                                     write(i, Mess_to, size);
@@ -260,7 +260,7 @@ void PrintCurrentClients(int client_cnt, int max_fd, int i, char *names, int soc
 int CheckNameAvailability(int max_fd, struct Messages *Mess_from, struct Messages *Mess_to, char *names, int size){
     int m;
     for(m = 4; m <= max_fd; m++){
-        if(strcmp(Mess_from->Payload.Payload, &names[m])==0){
+        if(strcmp(Mess_from->Payload.Payload, names[m])==0){
             Mess_to = malloc(size);
             strcpy(Mess_to->Payload.Payload, "This name is already being used. Choose a different one");
         }
