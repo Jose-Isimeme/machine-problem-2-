@@ -60,13 +60,13 @@ int main(int argc, char *argv[]){
     }
 
     //print message
-    printf("From the client: username is %s", argv[1]);
+    printf("From the client: username is %s\n", argv[1]);
 
     Mess_to = malloc(size);
     setInitialMessage(Mess_to);
     strcpy(Mess_to->Attr.Payload, argv[1]);
     //print message
-    printf("From the cleint: joining chat");
+    printf("From the client: joining chat\n");
 
     if(write(sock_fd, Mess_to, size)==-1){
         perror("write error");
