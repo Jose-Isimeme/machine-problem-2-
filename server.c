@@ -235,7 +235,9 @@ char PrintCurrentClientList(int client_cnt, int max_fd, int i, char *names, int 
     }else{
         //others are online so update array with different welcome message
         strcpy(who_is_online, "Howdy! There are ");
-        strcat(who_is_online, client_cnt-1);
+        char buffer[1];
+        sprintf(buffer, "%d", client_cnt-1);
+        strcat(who_is_online, buffer);
         strcat(who_is_online, " others online. Here is who is on: \n");
        // strcpy(who_is_online, "Howdy! There are others online. Here is who is on: \n");
     }
