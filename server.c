@@ -159,12 +159,7 @@ int main(int argc, char *argv[]){
 
                                         Mess_to = malloc(size);
                                         Mess_to->MessageType=7;
-                                        char who_is_online = PrintCurrentClients(client_cnt, max_fd, i, names, sock_fd);
-                                        
-                                        //add who_is_online to the payload of the message struct
-                                        strcpy(Mess_to->Payload.Payload, who_is_online);
-                                        printf("Message sent to the client was: %s", Mess_to->Payload.Payload);
-                                        write(i, Mess_to, size);
+                                        PrintCurrentClients(client_cnt, max_fd, i, names, sock_fd, Mess_to, size);
                                     }
                                 }
                             }
@@ -226,7 +221,7 @@ int main(int argc, char *argv[]){
     }
 }
 
-char PrintCurrentClientList(int client_cnt, int max_fd, int i, char *names, int sock_fd){
+void PrintCurrentClients(int client_cnt, int max_fd, int i, char *names, int sock_fd, struct Messages *Mess_to, int size){
     char who_is_online[500];
     int n;
     if(client_cnt==1){
@@ -255,7 +250,11 @@ char PrintCurrentClientList(int client_cnt, int max_fd, int i, char *names, int 
         }
     }
 
-    return who_is_online;
+    //add who_is_online to the payload of the message struct
+    strcpy(Mess_to->Payload.Payload, who_is_online);
+    printf("Message sent to the client was: %s", Mess_to->Payload.Payload);
+    write(i, Mess_to, size);
+
 }
 
 int CheckNameAvailability(int max_fd, struct Messages *Mess_from, struct Messages *Mess_to, char *names, int size){
