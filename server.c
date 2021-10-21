@@ -158,7 +158,7 @@ int main(int argc, char *argv[]){
                                         sprintf(names[i], "%s", Mess_from->Payload.Payload);
 
                                         Mess_to = malloc(size);
-                                        Mess_to->Payload.AttrType=7;
+                                        Mess_to->MessageType=7;
                                         char who_is_online[500] = PrintCurrentClients(client_cnt, max_fd, i, names, sock_fd);
                                         
                                         //add who_is_online to the payload of the message struct
@@ -234,7 +234,10 @@ char PrintCurrentClientList(int client_cnt, int max_fd, int i, char *names, int 
         strcpy(who_is_online, "Howdy! No one else is online\n");
     }else{
         //others are online so update array with different welcome message
-        strcpy(who_is_online, "Howdy! There are others online. Here is who is on: \n");
+        strcpy(who_is_online, "Howdy! There are ");
+        strcat(who_is_online, client_cnt-1);
+        strcat(who_is_online, " others online. Here is who is on: \n");
+       // strcpy(who_is_online, "Howdy! There are others online. Here is who is on: \n");
     }
     for(n = 4; n<max_fd; n++){
         if(n!=i){

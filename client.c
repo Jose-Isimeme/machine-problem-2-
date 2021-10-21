@@ -66,7 +66,7 @@ int main(int argc, char *argv[]){
     printf("From the client: username is %s\n", argv[1]);
 
     Mess_to = malloc(size);
-    setInitialMessage(Mess_to);
+    setInitialClient(Mess_to);
     strcpy(Mess_to->Payload.Payload, argv[1]);
     //print message
     printf("From the client: joining chat\n");
@@ -122,17 +122,23 @@ int main(int argc, char *argv[]){
     return 0;
 }
 
-void setInitialMessage(struct Messages *mess){
+void setInitialClient(struct Messages *mess){
+    //setting username and possible length of username 
     mess->Payload.AttrType=2;
-    mess->Payload.AttrLength=20;
+    mess->Payload.AttrLength=25;
+
+    //indicates client wishing to join session
     mess->MessageVrsn=3;
     mess->MessageType=2;
     mess->MessageLength=24;
 }
 
 void setMessage(struct Messages *mess){
+    //indicates messages being set
     mess->Payload.AttrType=4;
     mess->Payload.AttrLength=524;
+
+    //indicates client sending something to the server
     mess->MessageVrsn=3;
     mess->MessageType=4;
     mess->MessageLength=520;
