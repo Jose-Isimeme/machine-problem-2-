@@ -33,6 +33,7 @@ int main(int argc, char *argv[]){
     int sock_fd, connection;
     char *c;
     int portNum = strtol(argv[3], &c, 10);
+    int i;
 
     fd_set master_fd;
     fd_set temp_fd;
@@ -81,7 +82,7 @@ int main(int argc, char *argv[]){
             exit(6);
         }
 
-        for(int i=0; i<=sock_fd; i++){
+        for(i=0; i<=sock_fd; i++){
             if(FD_ISSET(i, &temp_fd)){
                 if(i==0){
                     bzero(message, 512);

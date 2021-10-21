@@ -105,7 +105,7 @@ int main(int argc, char *argv[]){
                     //ADD HERE
                     if(client_cnt < max_num_clients){
                         new_com = accept(sock_fd, (struct sockaddr*)NULL, NULL);
-                        print("From server: new connection\n");
+                        printf("From server: new connection\n");
                         //check for error
                         if(new_com == -1){
                             perror("");
@@ -125,7 +125,7 @@ int main(int argc, char *argv[]){
                 }else{
                     //ADD HERE
                     Mess_from = malloc(size);
-                    print("From Server: prepared for message from client\n");
+                    printf("From Server: prepared for message from client\n");
                     return_val = read(i, Mess_from, size);
                     //print message
                     if(return_val>0){
