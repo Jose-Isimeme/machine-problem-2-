@@ -221,13 +221,11 @@ int main(int argc, char *argv[]){
     }
 }
 
-void PrintCurrentClients(int client_cnt, int max_fd, int i, char names[500], int sock_fd, struct Messages *Mess_to, int size){
+void PrintCurrentClients(int client_cnt, int max_fd, int i, char names[100][50], int sock_fd, struct Messages *Mess_to, int size){
     char who_is_online[500];
     int n;
-    if(client_cnt==1){
-        //no one else is online so update the array
-        strcpy(who_is_online, "Howdy! No one else is online\n");
-    }else{
+    
+    if(client_cnt!=1){
         //others are online so update array with different welcome message
         strcpy(who_is_online, "Howdy! There are ");
         char buffer[2];
@@ -235,18 +233,25 @@ void PrintCurrentClients(int client_cnt, int max_fd, int i, char names[500], int
         strcat(who_is_online, buffer);
         strcat(who_is_online, " others online! Here is who is on: \n");
        // strcpy(who_is_online, "Howdy! There are others online. Here is who is on: \n");
-    }
-    for(n = 4; n<max_fd; n++){
-        if(n!=i){
-            if(n!=sock_fd){
-                if(client_cnt != 1){
-                    //update who_is_online with users that are online
-                    strcat(who_is_online, names[n]);
-                    
-                    //add a space to separate names
-                    strcat(who_is_online, "\n");
+    
+        for(n = 4; n<max_fd; n++){
+            if(n!=i){
+                if(n!=sock_fd){
+                    if(client_cnt != 1){
+                        //update who_is_online with users that are online
+                        strcat(who_is_online, names[n]);
+                        
+                        //add a space to separate names
+                        strcat(who_is_online, "\n");
+                    }
                 }
             }
+        }
+    
+    }else{
+        if(client_cnt==1){
+        //no one else is online so update the array
+        strcpy(who_is_online, "Howdy! No one else is online\n");
         }
     }
 
@@ -257,12 +262,13 @@ void PrintCurrentClients(int client_cnt, int max_fd, int i, char names[500], int
 
 }
 
-int CheckNameAvailability(int max_fd, struct Messages *Mess_from, struct Messages *Mess_to, char *names, int size){
+int CheckNameAvailability(int max_fd, struct Messages *Mess_from, struct Messages *Mess_to, char names[100][50], int size){
     int m;
     for(m = 4; m <= max_fd; m++){
-        if(strcmp(&Mess_from->Payload.Payload, &names[m])==0){
+        if(strcmp(&Mess_from->Payload.Payload, names[m])==0){
             Mess_to = malloc(size);
             strcpy(&Mess_to->Payload.Payload, "This name is already being used. Choose a different one");
+            return 0;
         }
     }
     return 1;
