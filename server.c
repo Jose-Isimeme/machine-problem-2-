@@ -260,9 +260,9 @@ void PrintCurrentClients(int client_cnt, int max_fd, int i, char *names, int soc
 int CheckNameAvailability(int max_fd, struct Messages *Mess_from, struct Messages *Mess_to, char *names, int size){
     int m;
     for(m = 4; m <= max_fd; m++){
-        if(strcmp(Mess_from->Payload.Payload, names[m])==0){
+        if(strcmp(&Mess_from->Payload.Payload, &names[m])==0){
             Mess_to = malloc(size);
-            strcpy(Mess_to->Payload.Payload, "This name is already being used. Choose a different one");
+            strcpy(&Mess_to->Payload.Payload, "This name is already being used. Choose a different one");
         }
     }
     return 1;
