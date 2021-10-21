@@ -9,12 +9,6 @@
 #include <unistd.h>
 
 /*Structs based of slides from recitation*/
-struct Messages{
-    unsigned int MessageVrsn; //9 bit version field, protocol version is 3
-    unsigned int MessageType; //7 bit type field, indicates SBCP message type
-    unsigned int MessageLength; //2 bit length field, indicates SBCP message length
-    struct Attr Payload; //contains 0 or more SBCP attributes
-};
 
 struct Attr{
     unsigned int AttrType; //2 bytes type field, indicates SBCP attribute type
@@ -22,6 +16,12 @@ struct Attr{
     char        Payload[512]; //has the attribute payload
 };
 
+struct Messages{
+    unsigned int MessageVrsn; //9 bit version field, protocol version is 3
+    unsigned int MessageType; //7 bit type field, indicates SBCP message type
+    unsigned int MessageLength; //2 bit length field, indicates SBCP message length
+    struct Attr Payload; //contains 0 or more SBCP attributes
+};
 
 int main(int argc, char *argv[]){
     
@@ -159,7 +159,7 @@ int main(int argc, char *argv[]){
 
                                         Mess_to = malloc(size);
                                         Mess_to->MessageType=7;
-                                        char who_is_online[500] = PrintCurrentClients(client_cnt, max_fd, i, names, sock_fd);
+                                        char who_is_online = PrintCurrentClients(client_cnt, max_fd, i, names, sock_fd);
                                         
                                         //add who_is_online to the payload of the message struct
                                         strcpy(Mess_to->Payload.Payload, who_is_online);

@@ -10,6 +10,12 @@
 
 /*Structs based of slides from recitation*/
 
+struct Attr{
+    unsigned int AttrType; //2 bytes type field, indicates SBCP attribute type
+    unsigned int AttrLength; //2 byte length field, indicates SBCP attribute length
+    char        Payload[512]; //has the attribute payload
+};
+
 struct Messages{
     unsigned int MessageVrsn; //9 bit version field, protocol version is 3
     unsigned int MessageType; //7 bit type field, indicates SBCP message type
@@ -17,11 +23,6 @@ struct Messages{
     struct Attr Payload; //contains 0 or more SBCP attributes
 };
 
-struct Attr{
-    unsigned int AttrType; //2 bytes type field, indicates SBCP attribute type
-    unsigned int AttrLength; //2 byte length field, indicates SBCP attribute length
-    char        Payload[512]; //has the attribute payload
-};
 
 int main(int argc, char *argv[]){
 
