@@ -15,3 +15,4 @@ This will start the chat service and you can begin to chat between different cli
 *Note: For the ip address, it is easiest to use hostname -I to find the local Ip Address of your device and use that for both the client and the server. 
 
 ## How our team created this code:
+There were some skeleton if and while loops given in reciation so we started with that and filled it in as necessary. By following diagrams and instructions (as well as functions and struct ideas) given in recitation and the MP instructions, we were able to create a chat session.
