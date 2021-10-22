@@ -106,6 +106,7 @@ int main(int argc, char *argv[]){
                     if(client_cnt < max_num_clients){
                         new_com = accept(sock_fd, (struct sockaddr*)NULL, NULL);
                         printf("From server: new connection\n");
+                        printf("number of clients is: %d", client_cnt);
                         //check for error
                         if(new_com == -1){
                             perror("cannot accept new connection");
@@ -116,6 +117,7 @@ int main(int argc, char *argv[]){
                                 max_fd = new_com;
                             }
                             client_cnt++;
+                        
                         }
                         
                     }
@@ -138,7 +140,7 @@ int main(int argc, char *argv[]){
                             if(Mess_from->Payload.AttrType == 2){
 
                                 //check that max number has not been reached
-                                if(client_cnt > max_num_clients+1){
+                                if(client_cnt > max_num_clients){
                                     Mess_to = malloc(size);
                                     Mess_to->Payload.AttrType=1;
                                     Mess_to->MessageType=5;
