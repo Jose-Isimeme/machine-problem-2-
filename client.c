@@ -30,6 +30,7 @@ int main(int argc, char *argv[]){
     struct Messages *Mess_to;
     struct Messages *Mess_from;
     char message[512];
+    
     int len_of_ip, readingbytes;
     size_t size = sizeof(struct Messages);
 
