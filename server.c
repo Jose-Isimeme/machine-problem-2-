@@ -124,8 +124,8 @@ int main(int argc, char *argv[]){
                 }else{
                     //ADD HERE
                     Mess_from = malloc(size);
-                    printf("From Server: prepared for message from client\n");
                     return_val = read(i, Mess_from, size);
+                    
                     //print message
                     if(return_val>0){
                         
@@ -138,13 +138,15 @@ int main(int argc, char *argv[]){
                             if(Mess_from->Payload.AttrType == 2){
 
                                 //check that max number has not been reached
-                                if(client_cnt > max_num_clients){
+                                if(client_cnt > max_num_clients+1){
                                     Mess_to = malloc(size);
+                                    Mess_to->Payload.AttrType=1;
+                                    Mess_to->MessageType=5;
                                     strcpy(Mess_to->Payload.Payload, "maximum number reached, so you cannot join\n");
                                     write(i, Mess_to, size);
-                                    client_cnt--;
                                     close(i);
                                     FD_CLR(i, &master_fd);
+                                    client_cnt--;
                                 }else{
                                     int name_not_being_used = CheckNameAvailability(max_fd, Mess_from, Mess_to, names, size); 
                                     if(name_not_being_used != 1){
@@ -155,10 +157,10 @@ int main(int argc, char *argv[]){
                                         return 0;
                                     }else{
                                         //print message
+                                        Mess_to->MessageType=7;
                                         sprintf(names[i], "%s", Mess_from->Payload.Payload);
 
                                         Mess_to = malloc(size);
-                                        Mess_to->MessageType=7;
                                         PrintCurrentClients(client_cnt, max_fd, i, names, sock_fd, Mess_to, size);
                                     }
                                 }
@@ -264,7 +266,7 @@ void PrintCurrentClients(int client_cnt, int max_fd, int i, char names[100][50],
 
 int CheckNameAvailability(int max_fd, struct Messages *Mess_from, struct Messages *Mess_to, char names[100][50], int size){
     int m;
-    for(m = 4; m <= max_fd; m++){
+    for(m = 0; m <= max_fd; m++){
         if(strcmp(&Mess_from->Payload.Payload, names[m])==0){
             Mess_to = malloc(size);
             strcpy(&Mess_to->Payload.Payload, "This name is already being used. Choose a different one");
