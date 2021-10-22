@@ -150,8 +150,23 @@ int main(int argc, char *argv[]){
                                     FD_CLR(i, &master_fd);
                                     client_cnt--;
                                 }else{
-                                    int name_not_being_used = CheckNameAvailability(max_fd, Mess_from, Mess_to, names, size); 
-                                    if(name_not_being_used != 1){
+                                    //int name_not_being_used = CheckNameAvailability(max_fd, Mess_from, Mess_to, names, size); 
+                                    int in_use = 0;
+                                    char err_msg[1024];
+                                    char who_is_online[100][50]={};
+                                    int k;
+                                    for(k=0; k < client_cnt; k++){
+                                        if (strcmp(who_is_online,names[k]) == 0){
+                                            in_use = 1;
+                                        }
+                                        
+                                    }
+
+                                    //if username already in use, tell client it is already in use
+                                    if(in_use){
+                                        //strcpy(Mess_to->Payload.Payload, "This name is already being used. Choose a different one");
+                                        memset(&err_msg, '\0', sizeof(err_msg)); //initialize message to be empty
+                                        strcpy(err_msg, "Error: Username already in use");
                                         write(i, Mess_to, size);
                                         client_cnt--;
                                         close(i);
@@ -266,13 +281,13 @@ void PrintCurrentClients(int client_cnt, int max_fd, int i, char names[100][50],
 
 }
 
-
-
+/**
+//CheckNameAvailability
 //compare this username from the usernames to check for any duplicates 
 int in_use = 0;
 char err_msg[1024]; 
 int k;
-for (k=0; k < client_cnt; k++){
+for(k=0; k < client_cnt; k++){
     if (strcmp(who_is_online,names[k]) == 0){
         in_use = 1;
     }
@@ -285,3 +300,4 @@ if(in_use){
     memset(&err_msg, '\0', sizeof(err_msg)); //initialize message to be empty
     strcpy(err_msg, "Error: Username already in use");
    }	
+**/
