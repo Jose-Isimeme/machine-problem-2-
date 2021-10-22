@@ -150,7 +150,17 @@ int main(int argc, char *argv[]){
                                     FD_CLR(i, &master_fd);
                                     client_cnt--;
                                 }else{
-                                    int name_not_being_used = CheckNameAvailability(max_fd, Mess_from, Mess_to, names, size); 
+                                    //int name_not_being_used = CheckNameAvailability(max_fd, Mess_from, Mess_to, names, size); 
+                                    int m, name_not_being_used;
+                                    for(m = 0; m <= max_fd; m++){
+                                        if(strcmp(Mess_from->Payload.Payload, names[m])==0){
+                                            Mess_to = malloc(size);
+                                            strcpy(Mess_to->Payload.Payload, "This name is already being used. Choose a different one");
+                                            name_not_being_used = 0;
+                                        }else{
+                                            name_not_being_used = 1;
+                                        }
+                                    }
                                     if(name_not_being_used != 1){
                                         write(i, Mess_to, size);
                                         client_cnt--;
@@ -163,7 +173,44 @@ int main(int argc, char *argv[]){
                                         sprintf(names[i], "%s", Mess_from->Payload.Payload);
 
                                         Mess_to = malloc(size);
-                                        PrintCurrentClients(client_cnt, max_fd, i, names, sock_fd, Mess_to, size);
+                                        //PrintCurrentClients(client_cnt, max_fd, i, names, sock_fd, Mess_to, size);
+                                        char who_is_online[500];
+                                        int n;
+    
+                                        if(client_cnt!=1){
+                                            //others are online so update array with different welcome message
+                                            strcpy(who_is_online, "Howdy! There are ");
+                                            char buffer[2];
+                                            sprintf(buffer, "%d", client_cnt-1);
+                                            strcat(who_is_online, buffer);
+                                            strcat(who_is_online, " others online! Here is who is on: \n");
+                                        // strcpy(who_is_online, "Howdy! There are others online. Here is who is on: \n");
+                                        
+                                            for(n = 4; n<max_fd; n++){
+                                                if(n!=i){
+                                                    if(n!=sock_fd){
+                                                        if(client_cnt != 1){
+                                                            //update who_is_online with users that are online
+                                                            strcat(who_is_online, names[n]);
+                                                            
+                                                            //add a space to separate names
+                                                            strcat(who_is_online, "\n");
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        
+                                        }else{
+                                            if(client_cnt==1){
+                                            //no one else is online so update the array
+                                            strcpy(who_is_online, "Howdy! No one else is online\n");
+                                            }
+                                        }
+
+                                        //add who_is_online to the payload of the message struct
+                                        strcpy(Mess_to->Payload.Payload, who_is_online);
+                                        printf("Message sent to the client was: %s", Mess_to->Payload.Payload);
+                                        write(i, Mess_to, size);
                                     }
                                 }
                             }
@@ -181,7 +228,7 @@ int main(int argc, char *argv[]){
                                         if(c!=i){
                                             if(c!=sock_fd){
                                                 Mess_to = malloc(size);
-                                                strcpy(Mess_to->Payload.Payload, Mess_from);
+                                                strcpy(Mess_to->Payload.Payload, &Mess_from);
                                                 write(c, Mess_to, size);
                                             }
                                         }
