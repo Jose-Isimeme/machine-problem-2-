@@ -280,7 +280,7 @@ void PrintCurrentClients(int client_cnt, int max_fd, int i, char names[100][50],
 
 //compare this username from the usernames to check for any duplicates 
 int in_use = 0;
-//char err_msg[1024]; 
+char err_msg[1024]; 
 int k;
 for (k=0; k < client_cnt; k++){
     if (strcmp(who_is_online,names[k]) == 0){
